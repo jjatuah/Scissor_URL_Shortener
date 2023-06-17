@@ -1,0 +1,19 @@
+{
+  "name": "scissor_url_shortener",
+  "version": "1.0.0",
+  "description": "URL Shortening Application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjatuah/Scissor_URL_Shortener.git"
+  },
+  "author": "Joseph Jatuah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jjatuah/Scissor_URL_Shortener/issues"
+  },
+  "homepage": "https://github.com/jjatuah/Scissor_URL_Shortener#readme"
+}
