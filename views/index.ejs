@@ -8,7 +8,7 @@
 <body>
   <h1>URL Shortener</h1>
 
-  <form action="">
+  <form action="" method="post">
     <label for="fullUrl">Url</label>
     <input type="url" name="fullUrl" id="fullUrl">
     <button type="submit">Shrink</button>
@@ -24,11 +24,15 @@
     </thead>
 
     <tbody>
-      <tr>
-        <td><a href="https://www.hotnigerianjobs.com/field/236/web-developer-jobs-in-nigeria">https://www.hotnigerianjobs.com/field/236/web-developer-jobs-in-nigeria</a></td>
-        <td><a href="/shortURL">shortURL</a></td>
-        <td>20</td>
-      </tr>
+
+      <% shortUrls.forEach(shortUrl => { %>
+        <tr>
+          <td><a href="<%= shortUrl.full_url %>"><%= shortUrl.full_url %></a></td>
+          <td><a href="<%= shortUrl.short_url %>"><%= shortUrl.short_url %></a></td>
+          <td><%= shortUrl.clicks %></td>
+        </tr>
+      <% }) %>
+      
     </tbody>
   </table>
 
