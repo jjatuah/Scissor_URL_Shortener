@@ -11,12 +11,14 @@ const PORT = process.env.PORT || 5000
 // connect to database
 Database.connect();
 
+app.use(express.json());
+app.use(express.urlencoded());
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended: false}))
 app.use("/", urlRoute);
 
 // app.get('/', (req, res) => {
-//   res.render('index')
+//   res.render('index') 
 // })
 
 app.listen(PORT, () => {
