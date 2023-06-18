@@ -1,14 +1,15 @@
 const express = require("express");
-const app = express()
-const mongoose = require("mongoose");
+const Database = require("./dbConnect")
 const urlRoute = require("./routes/url.route")
+require('dotenv').config();
 
-const PORT = 5000
+const app = express()
 
-mongoose.connect("mongodb://localhost:27017/Scissor", {
-   useNewUrlParser: true,
-   useUnifiedTopology: true
-});
+
+const PORT = process.env.PORT || 5000
+
+// connect to database
+Database.connect();
 
 app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended: false}))
@@ -18,4 +19,6 @@ app.use("/", urlRoute);
 //   res.render('index')
 // })
 
-app.listen(PORT)
+app.listen(PORT, () => {
+  console.log("App Listening on PORT:", PORT);
+})
