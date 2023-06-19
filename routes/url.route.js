@@ -7,10 +7,10 @@ require('dotenv').config();
 const urlRoute = express.Router();
 
 
-urlRoute.get('/', async (req, res) => {
-  const shortUrls = await urlModel.find()
-  res.render('index', { shortUrls: shortUrls})
-})
+// urlRoute.get('/', async (req, res) => {
+//   const shortUrls = await urlModel.find()
+//   res.render('index', { shortUrls: shortUrls})
+// })
 
 
 
@@ -19,9 +19,9 @@ urlRoute.get('/:urlCode', async (req, res) => {
     const urlData = await urlModel.findOne({urlCode: req.params.urlCode})
     
     if (urlData) {
-
       urlData.clicks++
       urlData.save()
+      res.status(200).json(urlData)
       return res.redirect(urlData.longUrl)
     } else {
       return res.status(404).json("No url found")
