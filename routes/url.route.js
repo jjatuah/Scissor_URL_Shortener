@@ -2,6 +2,7 @@ const express = require("express");
 const urlModel = require("../models/url.model");
 const validUrl = require("valid-url");
 const shortId = require("shortid")
+const requestIP = require('request-ip');
 require('dotenv').config();
 
 const urlRoute = express.Router();
@@ -17,19 +18,22 @@ const urlRoute = express.Router();
 urlRoute.get('/:urlCode', async (req, res) => {
   try {
     const urlData = await urlModel.findOne({urlCode: req.params.urlCode})
+    const ipAddress = requestIP.getClientIp(req);
+
+    console.log(ipAddress);
     
     if (urlData) {
       urlData.clicks++
-      urlData.save()
+      urlData.save() 
       res.status(200).json(urlData)
-      return res.redirect(urlData.longUrl)
+      // return res.redirect(urlData.longUrl)
     } else {
       return res.status(404).json("No url found")
     }
   } catch (error) {
     console.log(error);
     res.status(404).json("No url found")
-  }
+  } 
 
 })
 
