@@ -79,10 +79,15 @@ urlRoute.post('/', async (req, res) => {
       } else {
         const shortUrl = baseUrl + "/" + urlCode
 
+        const qrCode = await QRCode.toDataURL(longUrl)
+
+        console.log(qrCode);
+
         url = await urlModel.create({
           longUrl,
           shortUrl,
           urlCode,
+          qrCode,
           date: new Date()
         });
 
