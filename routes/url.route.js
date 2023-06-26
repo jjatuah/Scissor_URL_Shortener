@@ -3,6 +3,7 @@ const urlModel = require("../models/url.model");
 const validUrl = require("valid-url");
 const shortId = require("shortid")
 const requestIP = require('request-ip');
+var QRCode = require('qrcode')
 require('dotenv').config();
 
 const urlRoute = express.Router();

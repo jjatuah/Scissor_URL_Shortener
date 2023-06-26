@@ -14,7 +14,7 @@ Database.connect();
 app.use(express.json());
 app.use(express.urlencoded());
 app.set('view engine', 'ejs')
-app.use(express.urlencoded({extended: false}))
+app.use(express.urlencoded({extended: false})) 
 app.use("/", urlRoute);
 
 // app.get('/', (req, res) => {
