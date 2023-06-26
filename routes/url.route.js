@@ -60,7 +60,7 @@ urlRoute.get('/:urlCode', async (req, res) => {
 
 urlRoute.post('/', async (req, res) => {
 
-  const { longUrl } = req.body;
+  let { longUrl, urlCode } = req.body;
 
   const baseUrl = process.env.BASE_URL;
 
@@ -69,8 +69,10 @@ urlRoute.post('/', async (req, res) => {
     return res.status(401).json("Invalid base URL");
   }
 
-  //Generate short URL code
-  const urlCode = shortId.generate()
+  //Generate short URL code if there is none
+  if (!urlCode) {
+    urlCode = shortId.generate() 
+  }
 
   //Verify Long URL
   if(validUrl.isUri(longUrl)) {
@@ -80,22 +82,26 @@ urlRoute.post('/', async (req, res) => {
       if (url) {
         res.json(url)
       } else {
-        const shortUrl = baseUrl + "/" + urlCode
+        let codeCheck = await urlModel.findOne({ urlCode })
+        if (codeCheck) {
+          res.send("URL Code exists Already")
+        } else {
+          const shortUrl = baseUrl + "/" + urlCode
 
-        const qrCode = await QRCode.toDataURL(longUrl)
+          const qrCode = await QRCode.toDataURL(longUrl)
 
-        console.log(qrCode);
-
-        url = await urlModel.create({
-          longUrl,
-          shortUrl,
-          urlCode,
-          qrCode,
-          date: new Date()
-        });
+          url = await urlModel.create({
+            longUrl,
+            shortUrl,
+            urlCode,
+            qrCode,
+            date: new Date()
+          });
 
 
-        res.json(url)
+          res.json(url)
+        }
+        
       }
     } catch (error) {
         console.log(error);
