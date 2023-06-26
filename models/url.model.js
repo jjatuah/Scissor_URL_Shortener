@@ -18,6 +18,10 @@ const UrlSchema = new mongoose.Schema({
     type: String
   },
 
+  ipAddress: {
+    type: Array
+  },
+
   clicks: {
     type: Number,
     default: 0

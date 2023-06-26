@@ -19,12 +19,15 @@ const urlRoute = express.Router();
 urlRoute.get('/:urlCode', async (req, res) => {
   try {
     const urlData = await urlModel.findOne({urlCode: req.params.urlCode})
-    const ipAddress = requestIP.getClientIp(req);
 
-    console.log(ipAddress);
+    const ipAddress = await requestIP.getClientIp(req);
     
     if (urlData) {
       urlData.clicks++
+      urlData.ipAddress.includes(ipAddress) 
+      if (!urlData.ipAddress.includes(ipAddress)) {
+        urlData.ipAddress.push(ipAddress)
+      } 
       urlData.save() 
       res.status(200).json(urlData)
       // return res.redirect(urlData.longUrl)
