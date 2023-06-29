@@ -20,6 +20,22 @@ const DEFAULT_EXPIRATION = 3600;
 // })
 
 
+urlRoute.get('/', async (req, res) => {
+
+  try {    
+    const url = await urlModel.find().sort({ _id: -1 }).limit(20)
+    
+    res.status(200).json(url);
+  } catch (err) {
+     res.status(500).json({ status: false, message: err });
+
+  }
+})
+
+
+
+
+
 
 urlRoute.get('/:urlCode', async (req, res) => {
   try {
