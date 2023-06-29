@@ -4,9 +4,14 @@ const validUrl = require("valid-url");
 const shortId = require("shortid")
 const requestIP = require('request-ip');
 var QRCode = require('qrcode')
+const Redis = require("redis")
 require('dotenv').config();
 
 const urlRoute = express.Router();
+
+const redisClient = Redis.createClient()
+
+const DEFAULT_EXPIRATION = 3600;
 
 
 // urlRoute.get('/', async (req, res) => {
@@ -117,6 +122,21 @@ urlRoute.post('/', async (req, res) => {
 
   // res.redirect('/')
 })
+
+
+
+urlRoute.delete('/:id', async (req, res) => {
+
+  const urlId = req.params.id;
+
+  try {
+    await urlModel.findByIdAndDelete(urlId)
+    res.status(200).json("URL successfully deleted..."); 
+  } catch (err) {
+    res.status(500).json(err);
+  }
+})
+
 
 
 module.exports = urlRoute;
