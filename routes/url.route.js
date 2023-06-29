@@ -4,36 +4,49 @@ const validUrl = require("valid-url");
 const shortId = require("shortid")
 const requestIP = require('request-ip');
 var QRCode = require('qrcode')
-const Redis = require("redis")
+const redis = require('redis');
 require('dotenv').config();
 
 const urlRoute = express.Router();
 
-const redisClient = Redis.createClient()
+const redisClient = redis.createClient({ host: 'localhost', port: 6379 });
 
 const DEFAULT_EXPIRATION = 3600;
 
+redisClient.on('connect', () => {
+  console.log('Connected to Redis');
+});
+
+redisClient.on('error', (error) => { 
+  console.error('Redis connection error:', error);
+});
 
 // urlRoute.get('/', async (req, res) => {
 //   const shortUrls = await urlModel.find()
 //   res.render('index', { shortUrls: shortUrls})
 // })
+  
 
-
-urlRoute.get('/', async (req, res) => {
-
-  try {    
-    const url = await urlModel.find().sort({ _id: -1 }).limit(20)
-    
-    res.status(200).json(url);
+urlRoute.get('/', async (req, res) => { 
+  try {
+    redisClient.get("/", async (error, urlInfo) => { 
+      if (error) {
+        console.error(error);
+      }
+      if (urlInfo != null) {  
+        console.log("cache Hit");
+        return res.json(JSON.parse(urlInfo));
+      } else {
+        console.log('cache miss');    
+        const url = await urlModel.find().sort({ _id: -1 }).limit(20);
+        redisClient.setex("/", DEFAULT_EXPIRATION, JSON.stringify(url));
+        res.status(200).json(url);
+      }
+    });
   } catch (err) {
-     res.status(500).json({ status: false, message: err });
-
+    res.status(500).json({ status: false, message: err });
   }
-})
-
-
-
+});
 
 
 
@@ -138,7 +151,7 @@ urlRoute.post('/', async (req, res) => {
 
   // res.redirect('/')
 })
-
+ 
 
 
 urlRoute.delete('/:id', async (req, res) => {
@@ -152,7 +165,7 @@ urlRoute.delete('/:id', async (req, res) => {
     res.status(500).json(err);
   }
 })
+  
 
 
-
-module.exports = urlRoute;
+module.exports = urlRoute; 
