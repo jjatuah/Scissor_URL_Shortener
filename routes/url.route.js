@@ -52,28 +52,38 @@ urlRoute.get('/', async (req, res) => {
 
 urlRoute.get('/:urlCode', async (req, res) => {
   try {
-    const urlData = await urlModel.findOne({urlCode: req.params.urlCode})
+    redisClient.get(req.params.urlCode, async (error, urlInfo) => {
+      if (error) {
+        console.error(error);
+      }
+      
+      if (urlInfo != null) {
+        console.log("cache Hit");
+        return res.json(JSON.parse(urlInfo));
+      } else {
+        console.log('cache miss');
+        const urlData = await urlModel.findOne({ urlCode: req.params.urlCode });
+        const ipAddress = await requestIP.getClientIp(req);
 
-    const ipAddress = await requestIP.getClientIp(req);
-    
-    if (urlData) {
-      urlData.clicks++
-      urlData.ipAddress.includes(ipAddress) 
-      if (!urlData.ipAddress.includes(ipAddress)) {
-        urlData.ipAddress.push(ipAddress)
-      } 
-      urlData.save() 
-      res.status(200).json(urlData)
-      // return res.redirect(urlData.longUrl)
-    } else {
-      return res.status(404).json("No url found")
-    }
+        if (urlData) {
+          urlData.clicks++;
+          if (!urlData.ipAddress.includes(ipAddress)) {
+            urlData.ipAddress.push(ipAddress);
+          }
+          urlData.save();
+          redisClient.setex(req.params.urlCode, DEFAULT_EXPIRATION, JSON.stringify(urlData));
+          res.status(200).json(urlData);
+        } else {
+          return res.status(404).json("No URL found");
+        }
+      }
+    });
   } catch (error) {
     console.log(error);
-    res.status(404).json("No url found")
-  } 
+    res.status(404).json("No URL found");
+  }
+});
 
-})
 
 
 // urlRoute.get('/:shortUrl', async (req, res) => {
@@ -155,16 +165,39 @@ urlRoute.post('/', async (req, res) => {
 
 
 urlRoute.delete('/:id', async (req, res) => {
-
   const urlId = req.params.id;
 
   try {
-    await urlModel.findByIdAndDelete(urlId)
-    res.status(200).json("URL successfully deleted..."); 
+    // Delete the URL from the database
+    const deletedUrl = await urlModel.findByIdAndDelete(urlId);
+
+    // If the URL was successfully deleted from the database
+    if (deletedUrl) {
+      // Delete the corresponding Redis data
+      redisClient.del(`/${urlId}`, (error, result) => {
+        if (error) {
+          console.error(error);
+        }
+        console.log(`Deleted Redis data for URL with id: ${urlId}`);
+
+        // Invalidate the cache for the deleted URL
+        redisClient.del("/", (error, result) => {
+          if (error) {
+            console.error(error);
+          }
+          console.log("Invalidated cache for URL list");
+        });
+      });
+
+      res.status(200).json("URL successfully deleted...");
+    } else {
+      res.status(404).json("No URL found");
+    }
   } catch (err) {
     res.status(500).json(err);
   }
-})
+});
+
   
 
 
