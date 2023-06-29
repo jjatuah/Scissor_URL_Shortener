@@ -19,7 +19,7 @@ app.use(cors(corsOrigin));
 
 
 
-
+ 
 // connect to database
 Database.connect();
 
